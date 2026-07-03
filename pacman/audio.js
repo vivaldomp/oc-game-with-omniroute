@@ -1,27 +1,28 @@
 class AudioManager {
   constructor() {
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.ctx = null;
     this.sounds = {};
     this.muted = false;
     this.pelletRatio = 1;
     this.currentMusic = null;
+    this.sfxGain = null;
+    this.musicGain = null;
+  }
 
+  ensureContext() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     this.sfxGain = this.ctx.createGain();
-    this.sfxGain.gain.value = 0.3;
+    this.sfxGain.gain.value = 1;
     this.sfxGain.connect(this.ctx.destination);
-
     this.musicGain = this.ctx.createGain();
-    this.musicGain.gain.value = 0.3;
+    this.musicGain.gain.value = 1;
     this.musicGain.connect(this.ctx.destination);
   }
 
   unlock() {
+    this.ensureContext();
     if (this.ctx.state === 'suspended') {
-      const buf = this.ctx.createBuffer(1, 1, 22050);
-      const src = this.ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(this.ctx.destination);
-      src.start(0);
       this.ctx.resume();
     }
   }
@@ -42,11 +43,12 @@ class AudioManager {
       'intermission': 'intermission.wav'
     };
 
+    const decodeCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 44100);
     for (const [name, file] of Object.entries(soundMap)) {
       try {
         const resp = await fetch(`sounds/${file}`);
         const buffer = await resp.arrayBuffer();
-        this.sounds[name] = await this.ctx.decodeAudioData(buffer);
+        this.sounds[name] = await decodeCtx.decodeAudioData(buffer);
       } catch (e) {
         console.warn(`Sound not loaded: ${name}`);
       }
@@ -54,8 +56,8 @@ class AudioManager {
   }
 
   play(name, loop = false) {
+    this.ensureContext();
     if (this.muted || !this.sounds[name]) return null;
-    this.unlock();
 
     const source = this.ctx.createBufferSource();
     source.buffer = this.sounds[name];
@@ -66,7 +68,7 @@ class AudioManager {
     }
 
     source.connect(this.sfxGain);
-    try { source.start(0); } catch (e) { /* context not ready yet */ }
+    try { source.start(0); } catch (e) { console.warn('play start:', e); }
 
     if (!loop) {
       source.onended = () => source.disconnect();
@@ -82,15 +84,15 @@ class AudioManager {
   }
 
   playMusic(name) {
+    this.ensureContext();
     this.stopMusic();
     if (this.muted || !this.sounds[name]) return;
-    this.unlock();
 
     const source = this.ctx.createBufferSource();
     source.buffer = this.sounds[name];
     source.loop = true;
     source.connect(this.musicGain);
-    try { source.start(0); } catch (e) { /* context not ready yet */ }
+    try { source.start(0); } catch (e) { console.warn('music start:', e); }
     this.currentMusic = source;
   }
 
@@ -107,26 +109,26 @@ class AudioManager {
 
   setMusicVolume(v) {
     const clamped = Math.max(0, Math.min(1, v));
-    this.musicGain.gain.value = clamped;
+    if (this.musicGain) this.musicGain.gain.value = clamped;
     if (this.muted) this._prevMusicVol = clamped;
   }
 
   setSfxVolume(v) {
     const clamped = Math.max(0, Math.min(1, v));
-    this.sfxGain.gain.value = clamped;
+    if (this.sfxGain) this.sfxGain.gain.value = clamped;
     if (this.muted) this._prevSfxVol = clamped;
   }
 
   toggleMute() {
     this.muted = !this.muted;
     if (this.muted) {
-      this._prevSfxVol = this.sfxGain.gain.value;
-      this._prevMusicVol = this.musicGain.gain.value;
-      this.sfxGain.gain.value = 0;
-      this.musicGain.gain.value = 0;
+      this._prevSfxVol = this.sfxGain ? this.sfxGain.gain.value : 1;
+      this._prevMusicVol = this.musicGain ? this.musicGain.gain.value : 1;
+      if (this.sfxGain) this.sfxGain.gain.value = 0;
+      if (this.musicGain) this.musicGain.gain.value = 0;
     } else {
-      this.sfxGain.gain.value = this._prevSfxVol ?? 0.3;
-      this.musicGain.gain.value = this._prevMusicVol ?? 0.3;
+      if (this.sfxGain) this.sfxGain.gain.value = this._prevSfxVol ?? 1;
+      if (this.musicGain) this.musicGain.gain.value = this._prevMusicVol ?? 1;
     }
     return this.muted;
   }

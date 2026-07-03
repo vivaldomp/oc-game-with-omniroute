@@ -71,11 +71,10 @@ class Game {
     const startBtn = dpad.querySelector('.start-btn');
 
     dpad.addEventListener('touchstart', (e) => {
+      if (this.audio) this.audio.unlock();
       const btn = e.target.closest('.dpad-btn');
       if (!btn) return;
       e.preventDefault();
-
-      if (this.audio) this.audio.unlock();
 
       if (this.state === STATE.MENU) {
         this.startLevel();
@@ -96,6 +95,10 @@ class Game {
         }
       }
     }, { passive: false });
+
+    dpad.addEventListener('touchend', () => {
+      if (this.audio) this.audio.unlock();
+    });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && startBtn) startBtn.classList.remove('pulse');
@@ -165,6 +168,7 @@ class Game {
     document.querySelectorAll('.vol-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!this.audio) return;
+        this.audio.unlock();
         const channel = btn.dataset.channel;
         const dir = parseInt(btn.dataset.dir, 10);
         if (channel === 'sfx') {
