@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAC-MAN</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="hud">
+    <div id="score-wrap">
+      <span id="score-label">SCORE</span>
+      <span id="score-value">0</span>
+    </div>
+    <div id="lives-wrap"></div>
+    <div id="highscore-wrap">
+      <span id="highscore-label">HIGH SCORE</span>
+      <span id="highscore-value">0</span>
+    </div>
+    <div id="volume-controls">
+      <div class="vol-row">
+        <span class="vol-label">SFX</span>
+        <button class="vol-btn" data-channel="sfx" data-dir="-1">-</button>
+        <span class="vol-bars" id="sfx-bars">████</span>
+        <button class="vol-btn" data-channel="sfx" data-dir="1">+</button>
+      </div>
+      <div class="vol-row">
+        <span class="vol-label">MUS</span>
+        <button class="vol-btn" data-channel="music" data-dir="-1">-</button>
+        <span class="vol-bars" id="music-bars">████</span>
+        <button class="vol-btn" data-channel="music" data-dir="1">+</button>
+      </div>
+    </div>
+  </div>
+  <div id="game-container">
+    <canvas id="game-canvas" width="448" height="496"></canvas>
+    <div id="overlay" class="hidden">
+      <div id="overlay-text"></div>
+    </div>
+  </div>
+  <script src="maze.js"></script>
+  <script src="pacman.js"></script>
+  <script src="ghost.js"></script>
+  <script src="fruit.js"></script>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
