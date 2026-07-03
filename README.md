@@ -16,6 +16,15 @@ This project was built collaboratively using **OpenCode** with [Superpowers Skil
 - Web Audio API sound effects and music
 - Volume controls with mute toggles
 - High score persistence via localStorage
+- Touch D-pad controls for mobile devices (auto-detected)
+- iOS/mobile Safari audio unlock
+
+### Bug Fixes
+
+- Fright sound now loops for the full power-pellet duration
+- Eaten ghosts properly return to the ghost house and revive
+- Audio context correctly resumes on first user interaction
+- Consistent volume initialization (defaults to full)
 
 ## Sound Assets
 
@@ -31,6 +40,8 @@ npx vercel --prod
 
 ## Controls
 
+### Keyboard
+
 | Key | Action |
 |---|---|
 | Arrow keys / WASD | Move Pac-Man |
@@ -38,9 +49,17 @@ npx vercel --prod
 | `Shift+S` | Toggle SFX mute |
 | `Shift+M` | Toggle music mute |
 
+### Touch (mobile)
+
+On devices with a touchscreen (auto-detected via `pointer: coarse`), a D-pad appears below the game canvas:
+
+- Tap **▲ ◀ ▶ ▼** to move Pac-Man
+- Tap the center **●** button to start / restart
+- The center button pulses when waiting for input
+
 ## Tech Stack
 
 - **HTML5 Canvas** — rendering
-- **Web Audio API** — sound
+- **Web Audio API** — sound with iOS unlock
 - **Vanilla JS** — no framework
-- **Vercel** — deployment
+- **Vercel** — static deployment

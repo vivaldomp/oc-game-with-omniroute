@@ -15,6 +15,17 @@ class AudioManager {
     this.musicGain.connect(this.ctx.destination);
   }
 
+  unlock() {
+    if (this.ctx.state === 'suspended') {
+      const buf = this.ctx.createBuffer(1, 1, 22050);
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(this.ctx.destination);
+      src.start(0);
+      this.ctx.resume();
+    }
+  }
+
   async loadSounds() {
     const soundMap = {
       'eat_dot_0': 'eat_dot_0.wav',
@@ -44,6 +55,7 @@ class AudioManager {
 
   play(name, loop = false) {
     if (this.muted || !this.sounds[name]) return null;
+    this.unlock();
 
     const source = this.ctx.createBufferSource();
     source.buffer = this.sounds[name];
@@ -72,6 +84,7 @@ class AudioManager {
   playMusic(name) {
     this.stopMusic();
     if (this.muted || !this.sounds[name]) return;
+    this.unlock();
 
     const source = this.ctx.createBufferSource();
     source.buffer = this.sounds[name];

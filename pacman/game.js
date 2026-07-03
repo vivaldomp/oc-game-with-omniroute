@@ -75,9 +75,7 @@ class Game {
       if (!btn) return;
       e.preventDefault();
 
-      if (this.audio && this.audio.ctx.state === 'suspended') {
-        this.audio.ctx.resume();
-      }
+      if (this.audio) this.audio.unlock();
 
       if (this.state === STATE.MENU) {
         this.startLevel();
@@ -116,9 +114,7 @@ class Game {
 
   setupInput() {
     document.addEventListener('keydown', (e) => {
-      if (this.audio && this.audio.ctx.state === 'suspended') {
-        this.audio.ctx.resume();
-      }
+      if (this.audio) this.audio.unlock();
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 's', 'S', 'm', 'M', 'w', 'W', 'a', 'A', 'd', 'D'].includes(e.key)) {
         e.preventDefault();
       }
