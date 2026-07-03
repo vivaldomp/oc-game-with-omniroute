@@ -102,3 +102,71 @@ body {
   min-width: 32px;
   text-align: center;
 }
+
+#dpad {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.dpad-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dpad-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #2121de;
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.dpad-btn:active {
+  background: #2121de;
+}
+
+.dpad-placeholder {
+  width: 56px;
+  height: 56px;
+}
+
+.start-btn {
+  border-color: #ffb8ae;
+  color: #ffb8ae;
+  font-size: 14px;
+}
+
+.start-btn:active {
+  background: #ffb8ae;
+  color: #111;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.start-btn.pulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@media (pointer: coarse) {
+  #dpad {
+    display: flex;
+  }
+}

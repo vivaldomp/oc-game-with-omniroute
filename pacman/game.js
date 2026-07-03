@@ -56,10 +56,62 @@ class Game {
 
   init() {
     this.setupInput();
+    this.setupTouchControls();
     this.setupVolumeControls();
     this.updateHighScore();
     this.showOverlay('PAC-MAN');
+    this.updateDpadPulse();
     this.gameLoop(0);
+  }
+
+  setupTouchControls() {
+    const dpad = document.getElementById('dpad');
+    if (!dpad) return;
+
+    const startBtn = dpad.querySelector('.start-btn');
+
+    dpad.addEventListener('touchstart', (e) => {
+      const btn = e.target.closest('.dpad-btn');
+      if (!btn) return;
+      e.preventDefault();
+
+      if (this.audio && this.audio.ctx.state === 'suspended') {
+        this.audio.ctx.resume();
+      }
+
+      if (this.state === STATE.MENU) {
+        this.startLevel();
+        return;
+      }
+      if (this.state === STATE.GAME_OVER) {
+        this.restart();
+        return;
+      }
+
+      const dir = btn.dataset.dir;
+      if (dir) {
+        switch (dir) {
+          case 'up': this.pacman.setDirection(0, -1); break;
+          case 'down': this.pacman.setDirection(0, 1); break;
+          case 'left': this.pacman.setDirection(-1, 0); break;
+          case 'right': this.pacman.setDirection(1, 0); break;
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && startBtn) startBtn.classList.remove('pulse');
+    });
+  }
+
+  updateDpadPulse() {
+    const btn = document.querySelector('.start-btn');
+    if (!btn) return;
+    if (this.state === STATE.MENU || this.state === STATE.GAME_OVER) {
+      btn.classList.add('pulse');
+    } else {
+      btn.classList.remove('pulse');
+    }
   }
 
   setupInput() {
@@ -226,6 +278,7 @@ class Game {
 
   update() {
     this.frameCount++;
+    this.updateDpadPulse();
 
     switch (this.state) {
       case STATE.MENU:
